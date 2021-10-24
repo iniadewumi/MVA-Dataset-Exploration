@@ -3,60 +3,6 @@ import io, pathlib, zipfile, os
 import pandas as pd
 import numpy as np
 
-# url = "https://archive.ics.uci.edu/ml/machine-learning-databases/00288/leaf.zip"
-# url2 = "https://archive.ics.uci.edu/ml/machine-learning-databases/wine/wine.names"
-
-# data = requests.get(url).text
-# df = pd.read_csv(io.StringIO(data))
-
-# head = requests.get(url2).text
-
-
-
-# import zipfile
-
-# filepath = "C:\\Users\\adewu\\Downloads\\GPS Trajectory.rar"
-
-
-# requests.get("https://archive.ics.uci.edu/ml/machine-learning-databases/00354/GPS%20Trajectory.rar").text
-
-
-global wine, zoo, leaf
-# def zoo_dataset():
-#     global wine, zoo, leaf
-#     url="https://archive.ics.uci.edu/ml/machine-learning-databases/zoo/zoo.data"
-    
-#     data = requests.get(url).text
-#     zoo = pd.read_csv(io.StringIO(data))
-#     zoo_cor = pd.DataFrame(np.corrcoef(zoo[zoo.columns[1:]]))
-#     zoo_cov = pd.DataFrame(np.cov(zoo[zoo.columns[1:]]))
-    
-#     def check():
-#         print("No NA:", zoo.dropna().shape == zoo.shape)
-#         print("Size:", zoo.shape)
-#         print("Cor:", zoo_cor)
-#         print("Cov:", zoo_cov)
-#         return 
-#     check()
-
-# def wine_dataset():
-#     global wine, zoo, leaf
-
-#     url = "https://archive.ics.uci.edu/ml/machine-learning-databases/wine/wine.data"
-    
-#     data = requests.get(url).text
-#     wine = pd.read_csv(io.StringIO(data))
-#     wine_cor = pd.DataFrame(np.corrcoef(wine))
-#     wine_cov = pd.DataFrame(np.cov(wine))
-    
-#     def check():
-#         print("No NA:", wine.dropna().shape == wine.shape)
-#         print("Size:", wine.shape)
-#         print("Cor:", wine_cor)
-#         print("Cov:", wine_cov)
-#         return 
-#     check()
-
 
 
 def leaf_dataset():
@@ -93,16 +39,7 @@ def leaf_dataset():
     download_spam_collection(link, "leaf.zip")
     destination=DATASETS_DIR/"leaf"
     unzip_spam_collection(filepath=ZIPS_DIR/"leaf.zip", destination=DATASETS_DIR/"leaf")
-    
-    
-    
-    destination=DATASETS_DIR/"movies"
-    os.makedirs(destination, exist_ok=True)
-    unzip_spam_collection(filepath="C:\\Users\\adewu\\Downloads\\archive.zip", destination=DATASETS_DIR/"movies")
-    
-    
-    
-    os.listdir(destination)
+        
     leaf = pd.read_csv(destination/"leaf.csv")
         
     leaf_cor = pd.DataFrame(np.corrcoef(leaf))
