@@ -14,7 +14,7 @@ def leaf_dataset():
     
     
     
-    BASE_DIR = pathlib.Path().resolve().parent / "MVA"
+    BASE_DIR = pathlib.Path().resolve() / "MVA"
     DATASETS_DIR = BASE_DIR / "datasets"
     ZIPS_DIR = DATASETS_DIR / "zips"
     os.makedirs(ZIPS_DIR, exist_ok=True)
@@ -28,6 +28,7 @@ def leaf_dataset():
     
     
     def unzip_spam_collection(filepath, destination):
+        os.makedirs(destination, exist_ok=True)
         if len(os.listdir(destination))<1:
             with zipfile.ZipFile(filepath, 'r') as zip_ref:
                 zip_ref.extractall(destination)
