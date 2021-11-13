@@ -1,0 +1,114 @@
+---
+title: "MVA-Final Project"
+author: "Leaf Dataset Group"
+date: "11/13/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+# install.packages('comprehenr')
+library(comprehenr)
+library(KernSmooth)
+library(ellipse)
+library(MVA)
+
+leaf_df = read.csv('https://raw.githubusercontent.com/iniadewumi/MVA-Dataset-Exploration/master/MVA/datasets/leaf/leaf.csv')
+
+cols = c('Class', 'Specimen', 'Eccentricity', 'Aspect', 'Elongation', 'Solidity', 'Stochastic', 'Isoperimetric', 'Maximal', 'Lobedness', 'Average', 'Average', 'Smoothness', 'Third', 'Uniformity', 'Entropy')
+
+colnames(leaf_df) = cols
+
+
+```
+
+##MISSING DATA CHECK
+*We will check for NA values, and see if there are any zero values, which might suggest that the value might have been missing value. *
+*The we will check for negative values as well, which might affect analysis in the future*
+*Next we conduct a basic summary on the data-frame.*
+
+```{r}
+cat("Count of NAs:", sum(is.na(leaf_df)), "\n")
+cat("Count of 0 values", sum(leaf_df[leaf_df==0]), "\n")
+cat("Cosunt of Negative values:", sum(leaf_df[leaf_df<0]), "\n")
+
+cat("\n\n")
+summary(leaf_df)
+```
+
+##OUTLIERS CHECK
+```{r}
+bvbox(leaf_df)
+
+```
+
+##DATASET CORRELATION AND COVARIANCE 
+```{r}
+
+leaf_df.cor = cor(leaf_df)
+leaf_df.cov = cov(leaf_df)
+
+cat("Covariance Matrix\n\n")
+leaf_df.cov
+
+cat("\n\nCorrelation Matrix\n\n")
+leaf_df.cor
+
+```
+
+##FINDINGS FROM CORRELATION AND COVARIANCE ANALYSIS
+
+```{r}
+
+```
+
+##PCA
+
+```{r}
+
+```
+
+
+##DENSITY ANALYSIS
+
+```{r}
+
+
+#Use list comprehension to calculate the bw for each columns in the dataset
+bw = to_vec(for(col in colnames(leaf_df)) dpik(as.matrix(leaf_df[col])))
+
+
+#Calculate the density for each column
+leaf_df.mdens <- bkde2D(leaf_df, bandwidth = bw)
+
+
+
+# plot(leaf_df)
+# contour(x = leaf_df.mdens$x1, y = leaf_df.mdens$x2, z = leaf_df.mdens$fhat, add = TRUE)
+
+
+for( col in colnames(leaf_df)){
+   
+  bw = dpik(as.matrix(leaf_df[col]))
+  
+  den = density(as.matrix(leaf_df[col]), bw=bw, kernel = "gaussian")
+  plot(den, main=col)
+}
+
+
+```
+
+##NOTE: Multidimension Density Plot is unreadable. 
+
+
+
+
+```{r}
+
+
+```
+
