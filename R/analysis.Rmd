@@ -16,6 +16,7 @@ library(comprehenr)
 library(KernSmooth)
 library(ellipse)
 library(MVA)
+library(CCA)
 
 leaf_df = read.csv('https://raw.githubusercontent.com/iniadewumi/MVA-Dataset-Exploration/master/MVA/datasets/leaf/leaf.csv')
 
@@ -106,9 +107,32 @@ for( col in colnames(leaf_df)){
 
 
 
-
+##PCA Analysis
 ```{r}
 
+leaf_df.pca_cor = princomp(leaf_df, cor = TRUE)
+summary(leaf_df.pca_cor, loadings=T)
+
+```
+
+
+##MDS Analysis
+```{r}
+
+leaf_df.mds = cmdscale(dist(leaf_df), eig = TRUE)
+leaf_df.mds
+
+```
+
+
+```{r}
+# setup indices for two groups
+G1 <- 3:9
+G2 <- 10:16
+
+leaf_df.cca <- cc(leaf_df[,G1], leaf_df[,G2])
+
+leaf_df.cca
 
 ```
 
