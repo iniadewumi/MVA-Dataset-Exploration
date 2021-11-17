@@ -124,7 +124,7 @@ leaf_df.mds
 
 ```
 
-
+##CCA Analysis
 ```{r}
 # setup indices for two groups
 G1 <- 3:9
@@ -136,3 +136,11 @@ leaf_df.cca
 
 ```
 
+##
+```{r}
+
+
+hcs <- hclust(d, "single")
+plot(hcs, main = "Single Linkage HC Dendrogram")
+
+```
