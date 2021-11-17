@@ -17,7 +17,7 @@ library(KernSmooth)
 library(ellipse)
 library(MVA)
 library(CCA)
-
+ 
 leaf_df = read.csv('https://raw.githubusercontent.com/iniadewumi/MVA-Dataset-Exploration/master/MVA/datasets/leaf/leaf.csv')
 
 cols = c('Class', 'Specimen', 'Eccentricity', 'Aspect', 'Elongation', 'Solidity', 'Stochastic', 'Isoperimetric', 'Maximal', 'Lobedness', 'Average', 'Average', 'Smoothness', 'Third', 'Uniformity', 'Entropy')
