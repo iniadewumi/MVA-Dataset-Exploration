@@ -134,7 +134,6 @@ leaf_df.cca
 ##Hierarchical Clustering
 ```{r}
 
-
 hcs <- hclust(leaf.dist, "single")
 plot(hcs, main = "Single Linkage HC Dendrogram")
 
