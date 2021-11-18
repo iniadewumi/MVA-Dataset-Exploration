@@ -140,3 +140,8 @@ plot(hcs, main = "Single Linkage HC Dendrogram")
 
 ```
 
+
+```{r}
+print("hello")
+```
+
