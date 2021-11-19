@@ -12,6 +12,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r}
 # install.packages('comprehenr')
+# install.packages('dplyr')
 library(comprehenr)
 library(KernSmooth)
 library(ellipse)
@@ -66,8 +67,9 @@ agg_df = agg_df[-c(1,2,3,18) ]
 # full_df = as.data.frame(full_df)
 # leaf_df = full_df[-c(1,2,3,18) ]
 leaf_df = agg_df
-
-
+# unique(full_df$Class)
+# unique(cols)
+# unique("Class")
 ```
 
 
