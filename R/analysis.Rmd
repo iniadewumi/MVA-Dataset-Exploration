@@ -16,7 +16,8 @@ library(comprehenr)
 library(KernSmooth)
 library(ellipse)
 library(MVA)
-library(CCA)  
+library(CCA) 
+library(dplyr)
 # comment
  
 full_df = read.csv('https://raw.githubusercontent.com/iniadewumi/MVA-Dataset-Exploration/master/MVA/datasets/leaf/leaf.csv')
@@ -41,6 +42,8 @@ cols = c('Class', 'Specimen_Number', 'Eccentricity', 'Aspect_Ratio', 'Elongation
 
 colnames(full_df) = cols
 
+agg_df = aggregate(full_df, list(full_df$Class), mean)
+
 
 for (i in 1:nrow(full_df)) {
   name = as.character(k[full_df[i, "Class"]])
@@ -48,9 +51,23 @@ for (i in 1:nrow(full_df)) {
 }
 
 
-full_df = as.data.frame(full_df)
-leaf_df = full_df[-c(1,2,17) ]
-leaf_df
+for (i in 1:nrow(agg_df)) {
+  name = as.character(k[agg_df[i, "Class"]])
+  agg_df[i, "Sci_Name"] = name
+}
+
+rownames(agg_df) = agg_df$Sci_Name
+
+agg_df = agg_df[-c(1,2,3,18) ]
+
+
+
+
+# full_df = as.data.frame(full_df)
+# leaf_df = full_df[-c(1,2,3,18) ]
+leaf_df = agg_df
+
+
 ```
 
 
@@ -69,8 +86,54 @@ summary(leaf_df)
 ```
 
 ##OUTLIERS CHECK
+Since we had multiple columns, it was difficult plotting the BV plot with the right variables, so, we decided to do a column by column check on our dataset. We got the  Mean and Standard Deviation of each column, then we checked each row for 3 standard deviations from the mean, and they all fit within 3 standard deviations
+
+
+
+But when we used interquartile range, outliers were found. 
+
 ```{r}
-bvbox(leaf_df)
+
+
+for(name in colnames(leaf_df)){
+  col = leaf_df[, name]
+  m = mean(col)
+  sdv = sd(col)
+  
+  for (val in leaf_df[name]){
+    if (val>m+sdv*3 || val<m-sdv*3){
+      print(val)
+    }
+  }
+}
+
+
+
+outliers <- function(x) {
+
+  Q1 <- quantile(x, probs=.25)
+  Q3 <- quantile(x, probs=.75)
+  iqr = Q3-Q1
+
+ upper_limit = Q3 + (iqr*1.5)
+ lower_limit = Q1 - (iqr*1.5)
+ 
+ cat("\n\n", "Up", upper_limit)
+ cat("\nLow", lower_limit)
+
+ x > upper_limit | x < lower_limit
+}
+
+remove_outliers <- function(df, cols = names(df)) {
+  for (col in cols) {
+    # df <- df[!outliers(df[[col]]),]
+    cat("\n\n", col)
+    outliers(df[[col]])
+  }
+  df
+}
+
+remove_outliers(full_df, as.vector(colnames(leaf_df)))
 
 ```
 
