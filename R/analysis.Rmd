@@ -9,7 +9,7 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-
+ 
 ```{r}
 # install.packages('comprehenr')
 # install.packages('dplyr')
@@ -22,6 +22,10 @@ library(dplyr)
 # comment
  
 full_df = read.csv('https://raw.githubusercontent.com/iniadewumi/MVA-Dataset-Exploration/master/MVA/datasets/leaf/leaf.csv')
+
+
+
+
 
 k = c("1" = "Quercus suber", "2" = "Salix atrocinerea", "3" = "Populus nigra", "4" = "Alnus sp", 
       "5" = "Quercus robur", "6" = "Crataegus monogyna", "7" = "Ilex aquifolium", "8" = "Nerium oleander",
@@ -43,6 +47,53 @@ cols = c('Class', 'Specimen_Number', 'Eccentricity', 'Aspect_Ratio', 'Elongation
 
 colnames(full_df) = cols
 
+for (i in 1:nrow(full_df)) {
+  name = as.character(k[full_df[i, "Class"]])
+  full_df[i, "Sci_Name"] = name
+}
+
+
+outliers <- function(x) {
+
+  Q1 <- quantile(x, probs=.25)
+  Q3 <- quantile(x, probs=.75)
+  iqr = Q3-Q1
+
+ upper_limit = Q3 + (iqr*1.5)
+ lower_limit = Q1 - (iqr*1.5)
+
+ x > upper_limit | x < lower_limit
+}
+
+remove_outliers <- function(df, cols = names(df)) {
+  for (col in cols) {
+    df <- df[!outliers(df[[col]]),]
+  }
+  df
+}
+
+
+```
+
+
+```{r}
+
+
+
+test = full_df %>% group_split(Sci_Name)
+
+
+
+for(i in 1:length(test)){
+  df = test[[i]]
+  out_df = remove_outliers(df, as.vector(colnames(df)))
+  
+}
+
+
+```
+
+```{r}
 agg_df = aggregate(full_df, list(full_df$Class), mean)
 
 
@@ -57,19 +108,24 @@ for (i in 1:nrow(agg_df)) {
   agg_df[i, "Sci_Name"] = name
 }
 
+
 rownames(agg_df) = agg_df$Sci_Name
 
 agg_df = agg_df[-c(1,2,3,18) ]
 
 
 
-
 # full_df = as.data.frame(full_df)
 # leaf_df = full_df[-c(1,2,3,18) ]
 leaf_df = agg_df
+<<<<<<< HEAD
 # unique(full_df$Class)
 # unique(cols)
 # unique("Class")
+=======
+
+full_df
+>>>>>>> a8b8e4040ef683e752aa4a90e3974ca6f60f2b5f
 ```
 
 
@@ -103,7 +159,7 @@ for(name in colnames(leaf_df)){
   sdv = sd(col)
   
   for (val in leaf_df[name]){
-    if (val>m+sdv*3 || val<m-sdv*3){
+    if ((val>m+sdv*3) || (val<m-sdv*3)){
       print(val)
     }
   }
@@ -111,31 +167,7 @@ for(name in colnames(leaf_df)){
 
 
 
-outliers <- function(x) {
-
-  Q1 <- quantile(x, probs=.25)
-  Q3 <- quantile(x, probs=.75)
-  iqr = Q3-Q1
-
- upper_limit = Q3 + (iqr*1.5)
- lower_limit = Q1 - (iqr*1.5)
- 
- cat("\n\n", "Up", upper_limit)
- cat("\nLow", lower_limit)
-
- x > upper_limit | x < lower_limit
-}
-
-remove_outliers <- function(df, cols = names(df)) {
-  for (col in cols) {
-    # df <- df[!outliers(df[[col]]),]
-    cat("\n\n", col)
-    outliers(df[[col]])
-  }
-  df
-}
-
-remove_outliers(full_df, as.vector(colnames(leaf_df)))
+remove_outliers(leaf_df, as.vector(colnames(leaf_df)))
 
 ```
 
@@ -216,11 +248,38 @@ leaf_df.mds
 
 hcs <- hclust(leaf.dist, "single")
 plot(hcs, main = "Single Linkage HC Dendrogram")
-
+plot(rev(hcs$))
+ct <- cutree(hcs, #)
+table(ct)
+c1 <- subset(rownames(leaf_df), ct == #)
+index1 <- match(c1, rownames(leaf_df))
 ```
 
 
 ```{r}
-print("hello")
+######K-means
+
+leaf.km <- kmeans(leaf_df, centers = #)
+leaf.km$tot.withinss
+table(leaf.km$cluster)
+
+plot.wgss <- function(mydata, maxc){
+wss <- numeric(maxc)
+for (i in 1:maxc){
+wss[i] <- kmeans(mydata, iter.max = 100,
+centers = i, nstart = 10)$tot.withinss
+}
+plot(1:maxc, wss, type = "b",
+xlab = "Number of Clusters",
+ylab = "Within Groups Sum of Squares",
+main = "Scree Plot")
+}
+plot.wgss(leaf_df, #)
+
+plot(leaf_df.pca_cor$scores[,1:2], col = leaf.km$cluster)
+
+
+
+
 ```
 
