@@ -45,6 +45,54 @@ cols = c('Class', 'Specimen_Number', 'Eccentricity', 'Aspect_Ratio', 'Elongation
 
 
 colnames(full_df) = cols
+
+for (i in 1:nrow(full_df)) {
+  name = as.character(k[full_df[i, "Class"]])
+  full_df[i, "Sci_Name"] = name
+}
+
+
+outliers <- function(x) {
+
+  Q1 <- quantile(x, probs=.25)
+  Q3 <- quantile(x, probs=.75)
+  iqr = Q3-Q1
+
+ upper_limit = Q3 + (iqr*1.5)
+ lower_limit = Q1 - (iqr*1.5)
+
+ x > upper_limit | x < lower_limit
+}
+
+remove_outliers <- function(df, cols = names(df)) {
+  for (col in cols) {
+    df <- df[!outliers(df[[col]]),]
+  }
+  df
+}
+
+
+```
+
+
+```{r}
+
+
+
+test = full_df %>% group_split(Sci_Name)
+
+
+
+for(i in 1:length(test)){
+  df = test[[i]]
+  out_df = remove_outliers(df, as.vector(colnames(df)))
+  
+}
+
+
+```
+
+```{r}
 agg_df = aggregate(full_df, list(full_df$Class), mean)
 
 
@@ -59,11 +107,10 @@ for (i in 1:nrow(agg_df)) {
   agg_df[i, "Sci_Name"] = name
 }
 
+
 rownames(agg_df) = agg_df$Sci_Name
 
 agg_df = agg_df[-c(1,2,3,18) ]
-
-unique()
 
 
 
@@ -112,25 +159,6 @@ for(name in colnames(leaf_df)){
 }
 
 
-
-outliers <- function(x) {
-
-  Q1 <- quantile(x, probs=.25)
-  Q3 <- quantile(x, probs=.75)
-  iqr = Q3-Q1
-
- upper_limit = Q3 + (iqr*1.5)
- lower_limit = Q1 - (iqr*1.5)
-
- x > upper_limit | x < lower_limit
-}
-
-remove_outliers <- function(df, cols = names(df)) {
-  for (col in cols) {
-    df <- df[!outliers(df[[col]]),]
-  }
-  df
-}
 
 remove_outliers(leaf_df, as.vector(colnames(leaf_df)))
 
@@ -213,11 +241,38 @@ leaf_df.mds
 
 hcs <- hclust(leaf.dist, "single")
 plot(hcs, main = "Single Linkage HC Dendrogram")
-
+plot(rev(hcs$))
+ct <- cutree(hcs, #)
+table(ct)
+c1 <- subset(rownames(leaf_df), ct == #)
+index1 <- match(c1, rownames(leaf_df))
 ```
 
 
 ```{r}
-print("hello")
+######K-means
+
+leaf.km <- kmeans(leaf_df, centers = #)
+leaf.km$tot.withinss
+table(leaf.km$cluster)
+
+plot.wgss <- function(mydata, maxc){
+wss <- numeric(maxc)
+for (i in 1:maxc){
+wss[i] <- kmeans(mydata, iter.max = 100,
+centers = i, nstart = 10)$tot.withinss
+}
+plot(1:maxc, wss, type = "b",
+xlab = "Number of Clusters",
+ylab = "Within Groups Sum of Squares",
+main = "Scree Plot")
+}
+plot.wgss(leaf_df, #)
+
+plot(leaf_df.pca_cor$scores[,1:2], col = leaf.km$cluster)
+
+
+
+
 ```
 
