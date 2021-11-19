@@ -118,14 +118,7 @@ agg_df = agg_df[-c(1,2,3,18) ]
 # full_df = as.data.frame(full_df)
 # leaf_df = full_df[-c(1,2,3,18) ]
 leaf_df = agg_df
-<<<<<<< HEAD
-# unique(full_df$Class)
-# unique(cols)
-# unique("Class")
-=======
 
-full_df
->>>>>>> a8b8e4040ef683e752aa4a90e3974ca6f60f2b5f
 ```
 
 
