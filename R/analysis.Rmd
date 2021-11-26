@@ -121,11 +121,10 @@ for(i in 1:length(test)){
 
 
 ```
-151, 156
 
 ```{r}
 check = full_df[full_df$Class==14,]
-check[check$Maximal_Indentation_Depth == 0.031219 ,]
+check[check$Lobedness == 0.17738 ,]
 
 ```
 
@@ -175,8 +174,8 @@ for (col in colnames(leaf_28)) {
 # agg_df = agg_df[-c(1,2,3,18) ]
 
 
-
-leaf_df = new_df
+leaf_df = full_df[-c(156),]
+num_leaf_df = leaf_df[, -c(1,2,17)]
 
 ```
 
@@ -187,12 +186,12 @@ leaf_df = new_df
 *Next we conduct a basic summary on the data-frame.*
 
 ```{r}
-cat("Count of NAs:", sum(is.na(leaf_df)), "\n")
-cat("Count of 0 values", sum(leaf_df[leaf_df==0]), "\n")
-cat("Cosunt of Negative values:", sum(leaf_df[leaf_df<0]), "\n")
+cat("Count of NAs:", sum(is.na(num_leaf_df)), "\n")
+cat("Count of 0 values", sum(num_leaf_df[num_leaf_df==0]), "\n")
+cat("Cosunt of Negative values:", sum(num_leaf_df[num_leaf_df<0]), "\n")
 
 cat("\n\n")
-summary(leaf_df)
+summary(num_leaf_df)
 ```
 
 ##OUTLIERS CHECK
@@ -215,14 +214,14 @@ But when we used interquartile range, outliers were found.
 ##DATASET CORRELATION AND COVARIANCE 
 ```{r}
 
-leaf_df.cor = cor(leaf_df)
-leaf_df.cov = cov(leaf_df)
+num_leaf_df.cor = cor(num_leaf_df)
+num_leaf_df.cov = cov(num_leaf_df)
 
 cat("Covariance Matrix\n\n")
-leaf_df.cov
+num_leaf_df.cov
 
 cat("\n\nCorrelation Matrix\n\n")
-leaf_df.cor
+num_leaf_df.cor
 
 ```
 
@@ -238,23 +237,23 @@ leaf_df.cor
 
 
 #Use list comprehension to calculate the bw for each columns in the dataset
-bw = to_vec(for(col in colnames(leaf_df)) dpik(as.matrix(leaf_df[col])))
+bw = to_vec(for(col in colnames(num_leaf_df)) dpik(as.matrix(num_leaf_df[col])))
 
 
 #Calculate the density for each column
-leaf_df.mdens <- bkde2D(leaf_df, bandwidth = bw)
+num_leaf_df.mdens <- bkde2D(num_leaf_df, bandwidth = bw)
 
 
 
-# plot(leaf_df)
-# contour(x = leaf_df.mdens$x1, y = leaf_df.mdens$x2, z = leaf_df.mdens$fhat, add = TRUE)
+# plot(num_leaf_df)
+# contour(x = num_leaf_df.mdens$x1, y = num_leaf_df.mdens$x2, z = num_leaf_df.mdens$fhat, add = TRUE)
 
 
-for( col in colnames(leaf_df)){
+for( col in colnames(num_leaf_df)){
    
-  bw = dpik(as.matrix(leaf_df[col]))
+  bw = dpik(as.matrix(num_leaf_df[col]))
   
-  den = density(as.matrix(leaf_df[col]), bw=bw, kernel = "gaussian")
+  den = density(as.matrix(num_leaf_df[col]), bw=bw, kernel = "gaussian")
   plot(den, main=col)
 }
 
@@ -268,18 +267,18 @@ for( col in colnames(leaf_df)){
 ##PCA Analysis
 ```{r}
 
-leaf_df.pca_cor = princomp(leaf_df, cor = TRUE)
-summary(leaf_df.pca_cor, loadings=T)
+num_leaf_df.pca_cor = princomp(num_leaf_df, cor = TRUE)
+summary(num_leaf_df.pca_cor, loadings=T)
 
 ```
 
 
 ##MDS Analysis
 ```{r}
-leaf.dist = dist(leaf_df)
+leaf.dist = dist(num_leaf_df)
 
-leaf_df.mds = cmdscale(leaf.dist, eig = TRUE)
-leaf_df.mds
+num_leaf_df.mds = cmdscale(leaf.dist, eig = TRUE)
+num_leaf_df.mds
 
 ```
 
@@ -292,15 +291,15 @@ plot(hcs, main = "Single Linkage HC Dendrogram")
 plot(rev(hcs$))
 ct <- cutree(hcs, #)
 table(ct)
-c1 <- subset(rownames(leaf_df), ct == #)
-index1 <- match(c1, rownames(leaf_df))
+c1 <- subset(rownames(num_leaf_df), ct == #)
+index1 <- match(c1, rownames(num_leaf_df))
 ```
 
 
 ```{r}
 ######K-means
 
-leaf.km <- kmeans(leaf_df, centers = #)
+leaf.km <- kmeans(num_leaf_df, centers = #)
 leaf.km$tot.withinss
 table(leaf.km$cluster)
 
@@ -315,9 +314,9 @@ xlab = "Number of Clusters",
 ylab = "Within Groups Sum of Squares",
 main = "Scree Plot")
 }
-plot.wgss(leaf_df, #)
+plot.wgss(num_leaf_df, #)
 
-plot(leaf_df.pca_cor$scores[,1:2], col = leaf.km$cluster)
+plot(num_leaf_df.pca_cor$scores[,1:2], col = leaf.km$cluster)
 
 
 
