@@ -53,16 +53,24 @@ for (i in 1:nrow(full_df)) {
 }
 
 
+
+
+
 outliers <- function(x) {
 
-  Q1 <- quantile(x, probs=.25)
-  Q3 <- quantile(x, probs=.75)
+  Q1 <- quantile(x, probs=.10)
+  Q3 <- quantile(x, probs=.90)
   iqr = Q3-Q1
 
  upper_limit = Q3 + (iqr*1.5)
  lower_limit = Q1 - (iqr*1.5)
+  
+  if (upper_limit == lower_limit){
+     FALSE
+  }
 
- x > upper_limit | x < lower_limit
+    x > upper_limit | x < lower_limit
+
 }
 
 remove_outliers <- function(df, cols = names(df)) {
@@ -73,51 +81,102 @@ remove_outliers <- function(df, cols = names(df)) {
 }
 
 
-```
-
-
-```{r}
-
 
 
 test = full_df %>% group_split(Sci_Name)
 
 
+new_df = df <- data.frame()
 
 for(i in 1:length(test)){
-  df = test[[i]]
+  df = as.data.frame(test[[i]])[-c(1, 2, 17)]
   out_df = remove_outliers(df, as.vector(colnames(df)))
+  new_df = rbind(new_df, out_df)
+
+}
+c = 0
+
+for(i in 1:length(test)){ 
   
+  df = as.data.frame(test[[i]])
+  cat("\n", df$Class[1], "\n")
+  df = df[-c(1, 2, 17)]
+  
+  for(name in colnames(df)){
+    col = df[, name]
+    m = mean(col)
+    sdv = sd(col)
+    
+    for (val in col){
+      if ((val>m+sdv*3) || (val<m-sdv*3)){
+
+        cat("\n", name, ":", val, "[", m, sdv*3,"]")
+        cat("\n", val - m+sdv*3, "\n\n")
+        c = c + 1
+      }
+    }
+  }
+ 
 }
 
 
 ```
+151, 156
 
 ```{r}
-agg_df = aggregate(full_df, list(full_df$Class), mean)
+check = full_df[full_df$Class==14,]
+check[check$Maximal_Indentation_Depth == 0.031219 ,]
+
+```
 
 
-for (i in 1:nrow(full_df)) {
-  name = as.character(k[full_df[i, "Class"]])
-  full_df[i, "Sci_Name"] = name
+##Exploring leaf 28
+```{r}
+
+leaf_28 = full_df[full_df$Class=="28",][-c(1, 2, 17)]
+
+leaf_28
+
+for (col in colnames(leaf_28)) {
+  x = leaf_28[,"Stochastic_Convexity"]
+  Q1 <- quantile(x, probs=.25)
+  Q3 <- quantile(x, probs=.75)
+  iqr = Q3-Q1
+
+ upper_limit = Q3 + (iqr*3)
+ lower_limit = Q1 - (iqr*3)
+ 
+  if (upper_limit == lower_limit){
+    next
+  }
+
+  c = 0
+  for(x in x > upper_limit | x < lower_limit){
+    if(x==TRUE){
+        
+       cat("\n\n", col, "\n")
+       cat(upper_limit, lower_limit)
+       c = c +1
+    }    
+  } 
+
 }
 
 
-for (i in 1:nrow(agg_df)) {
-  name = as.character(k[agg_df[i, "Class"]])
-  agg_df[i, "Sci_Name"] = name
-}
+
+```
 
 
-rownames(agg_df) = agg_df$Sci_Name
+```{r}
+# agg_df = aggregate(full_df, list(full_df$Class), mean)
+# 
+# rownames(agg_df) = agg_df$Sci_Name
+# 
+# agg_df = agg_df[-c(1,2,3,18) ]
 
-agg_df = agg_df[-c(1,2,3,18) ]
 
 
-
-# full_df = as.data.frame(full_df)
-# leaf_df = full_df[-c(1,2,3,18) ]
-leaf_df = agg_df
+leaf_df = new_df
 
 ```
 
@@ -146,21 +205,10 @@ But when we used interquartile range, outliers were found.
 ```{r}
 
 
-for(name in colnames(leaf_df)){
-  col = leaf_df[, name]
-  m = mean(col)
-  sdv = sd(col)
-  
-  for (val in leaf_df[name]){
-    if ((val>m+sdv*3) || (val<m-sdv*3)){
-      print(val)
-    }
-  }
-}
 
 
 
-remove_outliers(leaf_df, as.vector(colnames(leaf_df)))
+
 
 ```
 
