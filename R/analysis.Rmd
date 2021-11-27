@@ -53,24 +53,16 @@ for (i in 1:nrow(full_df)) {
 }
 
 
-
-
-
 outliers <- function(x) {
 
-  Q1 <- quantile(x, probs=.10)
-  Q3 <- quantile(x, probs=.90)
+  Q1 <- quantile(x, probs=.25)
+  Q3 <- quantile(x, probs=.75)
   iqr = Q3-Q1
 
  upper_limit = Q3 + (iqr*1.5)
  lower_limit = Q1 - (iqr*1.5)
-  
-  if (upper_limit == lower_limit){
-     FALSE
-  }
 
-    x > upper_limit | x < lower_limit
-
+ x > upper_limit | x < lower_limit
 }
 
 remove_outliers <- function(df, cols = names(df)) {
@@ -80,102 +72,56 @@ remove_outliers <- function(df, cols = names(df)) {
   df
 }
 
+<<<<<<< HEAD
  
+=======
+
+```
+
+
+```{r}
+
+>>>>>>> a86cf21c0c275ba95829161a9eba73e0ddcbf7fb
 
 
 test = full_df %>% group_split(Sci_Name)
 
 
-new_df = df <- data.frame()
 
 for(i in 1:length(test)){
-  df = as.data.frame(test[[i]])[-c(1, 2, 17)]
+  df = test[[i]]
   out_df = remove_outliers(df, as.vector(colnames(df)))
-  new_df = rbind(new_df, out_df)
-
-}
-c = 0
-
-for(i in 1:length(test)){ 
   
-  df = as.data.frame(test[[i]])
-  cat("\n", df$Class[1], "\n")
-  df = df[-c(1, 2, 17)]
-  
-  for(name in colnames(df)){
-    col = df[, name]
-    m = mean(col)
-    sdv = sd(col)
-    
-    for (val in col){
-      if ((val>m+sdv*3) || (val<m-sdv*3)){
-
-        cat("\n", name, ":", val, "[", m, sdv*3,"]")
-        cat("\n", val - m+sdv*3, "\n\n")
-        c = c + 1
-      }
-    }
-  }
- 
 }
 
 
 ```
 
 ```{r}
-check = full_df[full_df$Class==14,]
-check[check$Lobedness == 0.17738 ,]
-
-```
+agg_df = aggregate(full_df, list(full_df$Class), mean)
 
 
-##Exploring leaf 28
-```{r}
-
-leaf_28 = full_df[full_df$Class=="28",][-c(1, 2, 17)]
-
-leaf_28
-
-for (col in colnames(leaf_28)) {
-  x = leaf_28[,"Stochastic_Convexity"]
-  Q1 <- quantile(x, probs=.25)
-  Q3 <- quantile(x, probs=.75)
-  iqr = Q3-Q1
-
- upper_limit = Q3 + (iqr*3)
- lower_limit = Q1 - (iqr*3)
- 
-  if (upper_limit == lower_limit){
-    next
-  }
-
-  c = 0
-  for(x in x > upper_limit | x < lower_limit){
-    if(x==TRUE){
-        
-       cat("\n\n", col, "\n")
-       cat(upper_limit, lower_limit)
-       c = c +1
-    }    
-  } 
-
+for (i in 1:nrow(full_df)) {
+  name = as.character(k[full_df[i, "Class"]])
+  full_df[i, "Sci_Name"] = name
 }
 
 
-
-```
-
-
-```{r}
-# agg_df = aggregate(full_df, list(full_df$Class), mean)
-# 
-# rownames(agg_df) = agg_df$Sci_Name
-# 
-# agg_df = agg_df[-c(1,2,3,18) ]
+for (i in 1:nrow(agg_df)) {
+  name = as.character(k[agg_df[i, "Class"]])
+  agg_df[i, "Sci_Name"] = name
+}
 
 
-leaf_df = full_df[-c(156),]
-num_leaf_df = leaf_df[, -c(1,2,17)]
+rownames(agg_df) = agg_df$Sci_Name
+
+agg_df = agg_df[-c(1,2,3,18) ]
+
+
+
+# full_df = as.data.frame(full_df)
+# leaf_df = full_df[-c(1,2,3,18) ]
+leaf_df = agg_df
 
 ```
 
@@ -186,12 +132,12 @@ num_leaf_df = leaf_df[, -c(1,2,17)]
 *Next we conduct a basic summary on the data-frame.*
 
 ```{r}
-cat("Count of NAs:", sum(is.na(num_leaf_df)), "\n")
-cat("Count of 0 values", sum(num_leaf_df[num_leaf_df==0]), "\n")
-cat("Cosunt of Negative values:", sum(num_leaf_df[num_leaf_df<0]), "\n")
+cat("Count of NAs:", sum(is.na(leaf_df)), "\n")
+cat("Count of 0 values", sum(leaf_df[leaf_df==0]), "\n")
+cat("Cosunt of Negative values:", sum(leaf_df[leaf_df<0]), "\n")
 
 cat("\n\n")
-summary(num_leaf_df)
+summary(leaf_df)
 ```
 
 ##OUTLIERS CHECK
@@ -204,24 +150,35 @@ But when we used interquartile range, outliers were found.
 ```{r}
 
 
+for(name in colnames(leaf_df)){
+  col = leaf_df[, name]
+  m = mean(col)
+  sdv = sd(col)
+  
+  for (val in leaf_df[name]){
+    if ((val>m+sdv*3) || (val<m-sdv*3)){
+      print(val)
+    }
+  }
+}
 
 
 
-
+remove_outliers(leaf_df, as.vector(colnames(leaf_df)))
 
 ```
 
 ##DATASET CORRELATION AND COVARIANCE 
 ```{r}
 
-num_leaf_df.cor = cor(num_leaf_df)
-num_leaf_df.cov = cov(num_leaf_df)
+leaf_df.cor = cor(leaf_df)
+leaf_df.cov = cov(leaf_df)
 
 cat("Covariance Matrix\n\n")
-num_leaf_df.cov
+leaf_df.cov
 
 cat("\n\nCorrelation Matrix\n\n")
-num_leaf_df.cor
+leaf_df.cor
 
 ```
 
@@ -237,23 +194,23 @@ num_leaf_df.cor
 
 
 #Use list comprehension to calculate the bw for each columns in the dataset
-bw = to_vec(for(col in colnames(num_leaf_df)) dpik(as.matrix(num_leaf_df[col])))
+bw = to_vec(for(col in colnames(leaf_df)) dpik(as.matrix(leaf_df[col])))
 
 
 #Calculate the density for each column
-num_leaf_df.mdens <- bkde2D(num_leaf_df, bandwidth = bw)
+leaf_df.mdens <- bkde2D(leaf_df, bandwidth = bw)
 
 
 
-# plot(num_leaf_df)
-# contour(x = num_leaf_df.mdens$x1, y = num_leaf_df.mdens$x2, z = num_leaf_df.mdens$fhat, add = TRUE)
+# plot(leaf_df)
+# contour(x = leaf_df.mdens$x1, y = leaf_df.mdens$x2, z = leaf_df.mdens$fhat, add = TRUE)
 
 
-for( col in colnames(num_leaf_df)){
+for( col in colnames(leaf_df)){
    
-  bw = dpik(as.matrix(num_leaf_df[col]))
+  bw = dpik(as.matrix(leaf_df[col]))
   
-  den = density(as.matrix(num_leaf_df[col]), bw=bw, kernel = "gaussian")
+  den = density(as.matrix(leaf_df[col]), bw=bw, kernel = "gaussian")
   plot(den, main=col)
 }
 
@@ -262,23 +219,38 @@ for( col in colnames(num_leaf_df)){
 
 ##NOTE: Multidimension Density Plot is unreadable. 
 
+##Histogram for Lobedness and Elongation
+```{r]}
+techst <- hist(leaf_df$Lobedness)
+leaf_df$Lobedness
+plot(techst, main="Lobedness Histogram")
+Elong <- hist(leaf_df$Elongation)
+leaf_df$Elongation
+plot(Elong, main="Elongation Histogram")
+```
 
-
+##Scatterplot comparing Lobedness and Elongation
+```{r]}
+plot(leaf_df$Elongation,leaf_df$Lobedness ,
+xlab = "Average Elongation",
+ylab = "Average Lobedness ",
+pch = 20, main="Lobedness and Elongation Scatterplot")
+```
 ##PCA Analysis
 ```{r}
 
-num_leaf_df.pca_cor = princomp(num_leaf_df, cor = TRUE)
-summary(num_leaf_df.pca_cor, loadings=T)
+leaf_df.pca_cor = princomp(leaf_df, cor = TRUE)
+summary(leaf_df.pca_cor, loadings=T)
 
 ```
 
 
 ##MDS Analysis
 ```{r}
-leaf.dist = dist(num_leaf_df)
+leaf.dist = dist(leaf_df)
 
-num_leaf_df.mds = cmdscale(leaf.dist, eig = TRUE)
-num_leaf_df.mds
+leaf_df.mds = cmdscale(leaf.dist, eig = TRUE)
+leaf_df.mds
 
 ```
 
@@ -291,15 +263,15 @@ plot(hcs, main = "Single Linkage HC Dendrogram")
 plot(rev(hcs$))
 ct <- cutree(hcs, #)
 table(ct)
-c1 <- subset(rownames(num_leaf_df), ct == #)
-index1 <- match(c1, rownames(num_leaf_df))
+c1 <- subset(rownames(leaf_df), ct == #)
+index1 <- match(c1, rownames(leaf_df))
 ```
 
 
 ```{r}
 ######K-means
 
-leaf.km <- kmeans(num_leaf_df, centers = #)
+leaf.km <- kmeans(leaf_df, centers = #)
 leaf.km$tot.withinss
 table(leaf.km$cluster)
 
@@ -314,9 +286,9 @@ xlab = "Number of Clusters",
 ylab = "Within Groups Sum of Squares",
 main = "Scree Plot")
 }
-plot.wgss(num_leaf_df, #)
+plot.wgss(leaf_df, #)
 
-plot(num_leaf_df.pca_cor$scores[,1:2], col = leaf.km$cluster)
+plot(leaf_df.pca_cor$scores[,1:2], col = leaf.km$cluster)
 
 
 
