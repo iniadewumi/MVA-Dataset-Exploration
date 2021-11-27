@@ -285,21 +285,35 @@ num_leaf_df.mds
 
 ##Hierarchical Clustering
 ```{r}
-
+## Single linkage hierarchical clustering
 hcs <- hclust(leaf.dist, "single")
 plot(hcs, main = "Single Linkage HC Dendrogram")
-plot(rev(hcs$))
-ct <- cutree(hcs, #)
+plot(rev(hcs$height))
+ct <- cutree(hcs, 12)
 table(ct)
-c1 <- subset(rownames(num_leaf_df), ct == #)
-index1 <- match(c1, rownames(num_leaf_df))
+
+##complete linkage hierarchical clustering
+hcc <- hclust(leaf.dist, "complete")
+plot(hcc, main = "Complete Linkage HC Dendrogram")
+plot(rev(hcc$height))
+ct1 <- cutree(hcc, 7)
+table(ct1)
+
+##Average linkage hierarchical clustering
+hca <- hclust(leaf.dist, "average")
+plot(hca, main = "Average Linkage HC Dendrogram")
+plot(rev(hca$height))
+ct2 <- cutree(hca, 10)
+table(ct2)
+
+
 ```
 
 
 ```{r}
 ######K-means
 
-leaf.km <- kmeans(num_leaf_df, centers = #)
+leaf.km <- kmeans(num_leaf_df, centers = 9, nstart = 10)
 leaf.km$tot.withinss
 table(leaf.km$cluster)
 
@@ -314,11 +328,25 @@ xlab = "Number of Clusters",
 ylab = "Within Groups Sum of Squares",
 main = "Scree Plot")
 }
-plot.wgss(num_leaf_df, #)
+plot.wgss(num_leaf_df, 20)
 
-plot(num_leaf_df.pca_cor$scores[,1:2], col = leaf.km$cluster)
+leaf.km1 <- kmeans(num_leaf_df, centers = 14, nstart = 10)
+leaf.km1$tot.withinss
+table(leaf.km1$cluster)
+
+plot(num_leaf_df.pca_cor$scores[,1:2], col = leaf.km1$cluster)
 
 
+```
+
+```{r}
+###Model-based clustering
+
+library(mclust)
+mbc.i <- Mclust(num_leaf_df)
+table(mbc.i$classification)#we have seven clusters
+plot(mbc.i, what = "BIC")
+mbc.i$modelName
 
 
 ```
