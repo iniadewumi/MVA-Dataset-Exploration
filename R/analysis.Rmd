@@ -12,7 +12,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r}
 # install.packages('comprehenr')
-# install.packages('dplyr')
+# install.packages('ggfortify')
 library(comprehenr)
 library(KernSmooth)
 library(ellipse)
@@ -20,6 +20,8 @@ library(MVA)
 library(CCA)
 library(dplyr)
 # comment
+library(ggfortify)
+
 
 
 
@@ -225,10 +227,22 @@ leaf_df = full_df[-c(156),]
 num_leaf_df = leaf_df[, -c(1,2,17)]
 
 
+
+
+
 num_leaf_df.shape_feat = num_leaf_df[c(1:7)]
 num_leaf_df.text_feat = num_leaf_df[c(8:14)]
 
 agg = aggregate(leaf_df, list(leaf_df$Class), mean)
+for (i in 1:nrow(agg)) {
+  name = as.character(k[agg[i, "Class"]])
+  agg[i, "Sci_Name"] = name
+}
+
+
+rownames(agg) = agg$Sci_Name
+
+
 num_agg = agg[, -c(1,2, 3,18)]
 
 
@@ -269,7 +283,7 @@ But when we used interquartile range, outliers were found.
 ```{r}
 
 num_leaf_df.cor = cor(num_leaf_df)
-num_leaf_df.cov = cov(agg.shape_feat)
+num_leaf_df.cov = cov(num_leaf_df)
 
 cat("Covariance Matrix\n\n")
 num_leaf_df.cov
@@ -338,15 +352,35 @@ plot(num_leaf_df$Elongation,num_leaf_df$Lobedness ,
 ##PCA Analysis
 ```{r}
 
-num_leaf_df.pca_cor = princomp(num_leaf_df, cor = TRUE)
-summary(num_leaf_df.pca_cor, loadings=T)
+library(devtools)
+install_github("vqv/ggbiplot")
+
+library(ggbiplot)
+
+ggbiplot(num_leaf_df.pca_cor)
+ggbiplot(num_leaf_df.pca_cor,ellipse=TRUE,circle=TRUE, abels=rownames(leaf_df))
+
+
+num_leaf_df.pca_cor = princomp(num_leaf_df, cor=T)
+
+pcasum = summary(num_leaf_df.pca_cor, loadings=T, cutoff=0.30)
+pcasum
+
+
+
+cum = c(0.4060298, 0.7055398, 0.8557138, 0.90826871, 0.9395322, 0.96733781, 0.97955083, 0.987623892, 0.992861029, 0.996111212, 0.997869154, 0.999118308, 0.9999826454, 1.000000)
+barplot(cum*100, width = 0.5, space = 0.1, main="Variability Explained", axes = T)
+
 
 ```
+
 
 
 ##MDS Analysis
 ```{r}
 leaf.dist = dist(num_leaf_df)
+
+num_leaf_df.shape_feat
 
 num_leaf_df.mds = cmdscale(leaf.dist, eig = TRUE)
 num_leaf_df.mds
