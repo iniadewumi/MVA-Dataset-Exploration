@@ -226,7 +226,7 @@ num_leaf_df = leaf_df[, -c(1,2,17)]
 
 
 num_leaf_df.shape_feat = num_leaf_df[c(1:7)]
-num_leaf_df.text_feat[c(8:14)] = num_leaf_df[c(8:14)]
+num_leaf_df.text_feat = num_leaf_df[c(8:14)]
 
 agg = aggregate(leaf_df, list(leaf_df$Class), mean)
 num_agg = agg[, -c(1,2, 3,18)]
