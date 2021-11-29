@@ -9,7 +9,7 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
- 
+
 ```{r}
 # install.packages('comprehenr')
 # install.packages('dplyr')
@@ -17,104 +17,212 @@ library(comprehenr)
 library(KernSmooth)
 library(ellipse)
 library(MVA)
-library(CCA) 
+library(CCA)
 library(dplyr)
 # comment
- 
-full_df = read.csv('https://raw.githubusercontent.com/iniadewumi/MVA-Dataset-Exploration/master/MVA/datasets/leaf/leaf.csv')
+
+full_df = read.csv(
+  'https://raw.githubusercontent.com/iniadewumi/MVA-Dataset-Exploration/master/MVA/datasets/leaf/leaf.csv'
+)
 
 
 
 
+# install.packages('comprehenr')
+# install.packages('dplyr')
+library(comprehenr)
+library(KernSmooth)
+library(ellipse)
+library(MVA)
+library(CCA)
+library(dplyr)
+# comment
 
-k = c("1" = "Quercus suber", "2" = "Salix atrocinerea", "3" = "Populus nigra", "4" = "Alnus sp", 
-      "5" = "Quercus robur", "6" = "Crataegus monogyna", "7" = "Ilex aquifolium", "8" = "Nerium oleander",
-      "9" = "Betula pubescens", "10" = "Tilia tomentosa", "11" = "Acer palmaturu", "12" = "Celtis sp", 
-      "13" = "Corylus avellana", "14" = "Castanea sativa", "15" = "Populus alba", "16" = "Acer negundo", 
-      "17" = "Taxus bacatta", "18" = "Papaver sp", "19" = "Polypodium vulgare", "20" = "Pinus sp", 
-      "21" = "Fraxinus sp", "22" = "Primula vulgaris", "23" = "Erodium sp", "24" = "Bougainvillea sp", 
-      "25" = "Arisarum vulgare", "26" = "Euonymus japonicus", "27" = "Ilex perado ssp azorica", 
-      "28" = "Magnolia soulangeana", "29" = "Buxus sempervirens", "30" = "Urtica dioica", 
-      "31" = "Podocarpus sp", "32" = "Acca sellowiana", "33" = "Hydrangea sp", "34" = "Pseudosasa japonica", 
-      "35" = "Magnolia grandiflora", "36" = "Geranium sp", "37" = "Aesculus californica", 
-      "38" = "Chelidonium majus", "39" = "Schinus terebinthifolius", "40" = "Fragaria vesca")
-
-cols = c('Class', 'Specimen_Number', 'Eccentricity', 'Aspect_Ratio', 'Elongation', 'Solidity', 
-         'Stochastic_Convexity', 'Isoperimetric_Factor', 'Maximal_Indentation_Depth', 'Lobedness', 
-         'Average_Intensity', 'Average_Contrast', 'Smoothness', 'Third_Moment', 'Uniformity', 
-         'Entropy')
+full_df = read.csv(
+  'https://raw.githubusercontent.com/iniadewumi/MVA-Dataset-Exploration/master/MVA/datasets/leaf/leaf.csv'
+)
+k = c(
+  "1" = "Quercus suber",
+  "2" = "Salix atrocinerea",
+  "3" = "Populus nigra",
+  "4" = "Alnus sp",
+  "5" = "Quercus robur",
+  "6" = "Crataegus monogyna",
+  "7" = "Ilex aquifolium",
+  "8" = "Nerium oleander",
+  "9" = "Betula pubescens",
+  "10" = "Tilia tomentosa",
+  "11" = "Acer palmaturu",
+  "12" = "Celtis sp",
+  "13" = "Corylus avellana",
+  "14" = "Castanea sativa",
+  "15" = "Populus alba",
+  "16" = "Acer negundo",
+  "17" = "Taxus bacatta",
+  "18" = "Papaver sp",
+  "19" = "Polypodium vulgare",
+  "20" = "Pinus sp",
+  "21" = "Fraxinus sp",
+  "22" = "Primula vulgaris",
+  "23" = "Erodium sp",
+  "24" = "Bougainvillea sp",
+  "25" = "Arisarum vulgare",
+  "26" = "Euonymus japonicus",
+  "27" = "Ilex perado ssp azorica",
+  "28" = "Magnolia soulangeana",
+  "29" = "Buxus sempervirens",
+  "30" = "Urtica dioica",
+  "31" = "Podocarpus sp",
+  "32" = "Acca sellowiana",
+  "33" = "Hydrangea sp",
+  "34" = "Pseudosasa japonica",
+  "35" = "Magnolia grandiflora",
+  "36" = "Geranium sp",
+  "37" = "Aesculus californica",
+  "38" = "Chelidonium majus",
+  "39" = "Schinus terebinthifolius",
+  "40" = "Fragaria vesca"
+)
+cols = c(
+  'Class',
+  'Specimen_Number',
+  'Eccentricity',
+  'Aspect_Ratio',
+  'Elongation',
+  'Solidity',
+  'Stochastic_Convexity',
+  'Isoperimetric_Factor',
+  'Maximal_Indentation_Depth',
+  'Lobedness',
+  'Average_Intensity',
+  'Average_Contrast',
+  'Smoothness',
+  'Third_Moment',
+  'Uniformity',
+  'Entropy'
+)
 
 
 colnames(full_df) = cols
 
+
+
 for (i in 1:nrow(full_df)) {
   name = as.character(k[full_df[i, "Class"]])
   full_df[i, "Sci_Name"] = name
 }
 
 
+
 outliers <- function(x) {
-
-  Q1 <- quantile(x, probs=.25)
-  Q3 <- quantile(x, probs=.75)
-  iqr = Q3-Q1
-
- upper_limit = Q3 + (iqr*1.5)
- lower_limit = Q1 - (iqr*1.5)
-
- x > upper_limit | x < lower_limit
+  Q1 <- quantile(x, probs = .10)
+  Q3 <- quantile(x, probs = .90)
+  iqr = Q3 - Q1
+  upper_limit = Q3 + (iqr * 1.5)
+  lower_limit = Q1 - (iqr * 1.5)
+  
+  if (upper_limit == lower_limit) {
+    FALSE
+  }
+  x > upper_limit | x < lower_limit
 }
+
 
 remove_outliers <- function(df, cols = names(df)) {
   for (col in cols) {
-    df <- df[!outliers(df[[col]]),]
+    df <- df[!outliers(df[[col]]), ]
   }
   df
 }
 
- 
 
 
 test = full_df %>% group_split(Sci_Name)
+new_df = df <- data.frame()
 
 
-
-for(i in 1:length(test)){
-  df = test[[i]]
+for (i in 1:length(test)) {
+  df = as.data.frame(test[[i]])[-c(1, 2, 17)]
   out_df = remove_outliers(df, as.vector(colnames(df)))
+  new_df = rbind(new_df, out_df)
+}
+
+
+
+c = 0
+
+
+for (i in 1:length(test)) {
+  df = as.data.frame(test[[i]])
+  cat("\n", df$Class[1], "\n")
+  df = df[-c(1, 2, 17)]
+  
+  for (name in colnames(df)) {
+    col = df[, name]
+    m = mean(col)
+    sdv = sd(col)
+    
+    for (val in col) {
+      if ((val > m + sdv * 3) || (val < m - sdv * 3)) {
+        cat("\n", name, ":", val, "[", m, sdv * 3, "]")
+        cat("\n", val - m + sdv * 3, "\n\n")
+        c = c + 1
+      }
+    }
+  }
   
 }
 
-
 ```
+
+
 
 ```{r}
-agg_df = aggregate(full_df, list(full_df$Class), mean)
-
-
-for (i in 1:nrow(full_df)) {
-  name = as.character(k[full_df[i, "Class"]])
-  full_df[i, "Sci_Name"] = name
-}
-
-
-for (i in 1:nrow(agg_df)) {
-  name = as.character(k[agg_df[i, "Class"]])
-  agg_df[i, "Sci_Name"] = name
-}
-
-
-rownames(agg_df) = agg_df$Sci_Name
-
-agg_df = agg_df[-c(1,2,3,18) ]
-
-
-
-# full_df = as.data.frame(full_df)
-# leaf_df = full_df[-c(1,2,3,18) ]
-leaf_df = agg_df
-
+check = full_df[full_df$Class==14,]
+check[check$Lobedness == 0.17738 ,]
 ```
+
+
+##Exploring leaf 28
+```{r}
+leaf_28 = full_df[full_df$Class=="28",][-c(1, 2, 17)]
+leaf_28
+for (col in colnames(leaf_28)) {
+  x = leaf_28[,"Stochastic_Convexity"]
+  Q1 <- quantile(x, probs=.25)
+  Q3 <- quantile(x, probs=.75)
+  iqr = Q3-Q1
+ upper_limit = Q3 + (iqr*3)
+ lower_limit = Q1 - (iqr*3)
+ 
+  if (upper_limit == lower_limit){
+    next
+  }
+  c = 0
+  for(x in x > upper_limit | x < lower_limit){
+    if(x==TRUE){
+        
+       cat("\n\n", col, "\n")
+       cat(upper_limit, lower_limit)
+       c = c +1
+    }    
+  } 
+}
+```
+
+
+```{r}
+# agg_df = aggregate(full_df, list(full_df$Class), mean)
+# 
+# rownames(agg_df) = agg_df$Sci_Name
+# 
+# agg_df = agg_df[-c(1,2,3,18) ]
+leaf_df = full_df[-c(156),]
+num_leaf_df = leaf_df[, -c(1,2,17)]
+```
+
+
+
 
 
 ##MISSING DATA CHECK
@@ -198,7 +306,7 @@ leaf_df.mdens <- bkde2D(leaf_df, bandwidth = bw)
 
 
 for( col in colnames(leaf_df)){
-   
+  
   bw = dpik(as.matrix(leaf_df[col]))
   
   den = density(as.matrix(leaf_df[col]), bw=bw, kernel = "gaussian")
@@ -223,10 +331,20 @@ plot(Elong, main="Elongation Histogram")
 ##Scatterplot comparing Lobedness and Elongation
 ```{r]}
 plot(leaf_df$Elongation,leaf_df$Lobedness ,
-xlab = "Average Elongation",
-ylab = "Average Lobedness ",
-pch = 20, main="Lobedness and Elongation Scatterplot")
+     xlab = "Average Elongation",
+     ylab = "Average Lobedness ",
+     pch = 20, main="Lobedness and Elongation Scatterplot")
 ```
+
+```{r}
+
+leaf_df
+
+
+```
+
+
+
 ##PCA Analysis
 ```{r}
 
@@ -281,15 +399,15 @@ leaf.km$tot.withinss
 table(leaf.km$cluster)
 
 plot.wgss <- function(mydata, maxc){
-wss <- numeric(maxc)
-for (i in 1:maxc){
-wss[i] <- kmeans(mydata, iter.max = 100,
-centers = i, nstart = 10)$tot.withinss
-}
-plot(1:maxc, wss, type = "b",
-xlab = "Number of Clusters",
-ylab = "Within Groups Sum of Squares",
-main = "Scree Plot")
+  wss <- numeric(maxc)
+  for (i in 1:maxc){
+    wss[i] <- kmeans(mydata, iter.max = 100,
+                     centers = i, nstart = 10)$tot.withinss
+  }
+  plot(1:maxc, wss, type = "b",
+       xlab = "Number of Clusters",
+       ylab = "Within Groups Sum of Squares",
+       main = "Scree Plot")
 }
 plot.wgss(num_leaf_df, 20)
 
@@ -310,6 +428,13 @@ mbc.i <- Mclust(num_leaf_df)
 table(mbc.i$classification)#we have seven clusters
 plot(mbc.i, what = "BIC")
 mbc.i$modelName
+
+
+```
+
+
+##CFA
+```{r}
 
 
 ```
