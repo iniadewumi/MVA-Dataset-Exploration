@@ -21,26 +21,30 @@ library(CCA)
 library(dplyr)
 # comment
 
+
+
+
+plot.wgss <- function(mydata, maxc) {
+  wss <- numeric(maxc)
+  for (i in 1:maxc) {
+    wss[i] <- kmeans(mydata,iter.max = 100, centers = i, nstart = 10)$tot.withinss
+  }
+  plot(1:maxc, wss,
+    type = "b",
+    xlab = "Number of Clusters",
+    ylab = "Within Groups Sum of Squares",
+    main = "Scree Plot"
+  )
+}
+
+
+
+
 full_df = read.csv(
   'https://raw.githubusercontent.com/iniadewumi/MVA-Dataset-Exploration/master/MVA/datasets/leaf/leaf.csv'
 )
 
 
-
-
-# install.packages('comprehenr')
-# install.packages('dplyr')
-library(comprehenr)
-library(KernSmooth)
-library(ellipse)
-library(MVA)
-library(CCA)
-library(dplyr)
-# comment
-
-full_df = read.csv(
-  'https://raw.githubusercontent.com/iniadewumi/MVA-Dataset-Exploration/master/MVA/datasets/leaf/leaf.csv'
-)
 k = c(
   "1" = "Quercus suber",
   "2" = "Salix atrocinerea",
@@ -219,6 +223,14 @@ for (col in colnames(leaf_28)) {
 # agg_df = agg_df[-c(1,2,3,18) ]
 leaf_df = full_df[-c(156),]
 num_leaf_df = leaf_df[, -c(1,2,17)]
+
+
+agg = aggregate(leaf_df, list(leaf_df$Class), mean)
+num_agg = agg[, -c(1,2, 3,18)]
+
+
+agg.shape_feat = agg[c(1:7)]
+
 ```
 
 
@@ -231,12 +243,12 @@ num_leaf_df = leaf_df[, -c(1,2,17)]
 *Next we conduct a basic summary on the data-frame.*
 
 ```{r}
-cat("Count of NAs:", sum(is.na(leaf_df)), "\n")
-cat("Count of 0 values", sum(leaf_df[leaf_df==0]), "\n")
-cat("Cosunt of Negative values:", sum(leaf_df[leaf_df<0]), "\n")
+cat("Count of NAs:", sum(is.na(num_leaf_df)), "\n")
+cat("Count of 0 values", sum(num_leaf_df[num_leaf_df==0]), "\n")
+cat("Cosunt of Negative values:", sum(num_leaf_df[num_leaf_df<0]), "\n")
 
 cat("\n\n")
-summary(leaf_df)
+summary(num_leaf_df)
 ```
 
 ##OUTLIERS CHECK
@@ -246,46 +258,27 @@ Since we had multiple columns, it was difficult plotting the BV plot with the ri
 
 But when we used interquartile range, outliers were found. 
 
-```{r}
 
-
-for(name in colnames(leaf_df)){
-  col = leaf_df[, name]
-  m = mean(col)
-  sdv = sd(col)
-  
-  for (val in leaf_df[name]){
-    if ((val>m+sdv*3) || (val<m-sdv*3)){
-      print(val)
-    }
-  }
-}
-
-
-
-remove_outliers(leaf_df, as.vector(colnames(leaf_df)))
-
-```
 
 ##DATASET CORRELATION AND COVARIANCE 
 ```{r}
 
-leaf_df.cor = cor(leaf_df)
-leaf_df.cov = cov(leaf_df)
+num_leaf_df.cor = cor(num_leaf_df)
+num_leaf_df.cov = cov(num_leaf_df)
 
 cat("Covariance Matrix\n\n")
-leaf_df.cov
+num_leaf_df.cov
 
 cat("\n\nCorrelation Matrix\n\n")
-leaf_df.cor
+num_leaf_df.cor
 
+
+plot(num_leaf_df.cor)
 ```
 
 ##FINDINGS FROM CORRELATION AND COVARIANCE ANALYSIS
 
-```{r}
 
-```
 
 ##DENSITY ANALYSIS
 
@@ -293,23 +286,23 @@ leaf_df.cor
 
 
 #Use list comprehension to calculate the bw for each columns in the dataset
-bw = to_vec(for(col in colnames(leaf_df)) dpik(as.matrix(leaf_df[col])))
+bw = to_vec(for(col in colnames(num_leaf_df)) dpik(as.matrix(num_leaf_df[col])))
 
 
 #Calculate the density for each column
-leaf_df.mdens <- bkde2D(leaf_df, bandwidth = bw)
+num_leaf_df.mdens <- bkde2D(num_leaf_df, bandwidth = bw)
 
 
 
-# plot(leaf_df)
-# contour(x = leaf_df.mdens$x1, y = leaf_df.mdens$x2, z = leaf_df.mdens$fhat, add = TRUE)
+# plot(num_leaf_df)
+# contour(x = num_leaf_df.mdens$x1, y = leaf_df.mdens$x2, z = leaf_df.mdens$fhat, add = TRUE)
 
 
-for( col in colnames(leaf_df)){
+for( col in colnames(num_leaf_df)){
   
-  bw = dpik(as.matrix(leaf_df[col]))
+  bw = dpik(as.matrix(num_leaf_df[col]))
   
-  den = density(as.matrix(leaf_df[col]), bw=bw, kernel = "gaussian")
+  den = density(as.matrix(num_leaf_df[col]), bw=bw, kernel = "gaussian")
   plot(den, main=col)
 }
 
@@ -319,69 +312,72 @@ for( col in colnames(leaf_df)){
 ##NOTE: Multidimension Density Plot is unreadable. 
 
 ##Histogram for Lobedness and Elongation
-```{r]}
-techst <- hist(leaf_df$Lobedness)
-leaf_df$Lobedness
+```{r}
+techst <- hist(num_leaf_df$Lobedness)
+num_leaf_df$Lobedness
 plot(techst, main="Lobedness Histogram")
-Elong <- hist(leaf_df$Elongation)
-leaf_df$Elongation
+Elong <- hist(num_leaf_df$Elongation)
+num_leaf_df$Elongation
 plot(Elong, main="Elongation Histogram")
 ```
 
 ##Scatterplot comparing Lobedness and Elongation
-```{r]}
-plot(leaf_df$Elongation,leaf_df$Lobedness ,
+```{r}
+plot(num_leaf_df$Elongation,num_leaf_df$Lobedness ,
      xlab = "Average Elongation",
      ylab = "Average Lobedness ",
      pch = 20, main="Lobedness and Elongation Scatterplot")
 ```
 
-```{r}
-
-leaf_df
-
-
-```
-
-
 
 ##PCA Analysis
 ```{r}
 
-leaf_df.pca_cor = princomp(leaf_df, cor = TRUE)
-summary(leaf_df.pca_cor, loadings=T)
+num_leaf_df.pca_cor = princomp(num_leaf_df, cor = TRUE)
+summary(num_leaf_df.pca_cor, loadings=T)
 
 ```
 
 
 ##MDS Analysis
 ```{r}
-leaf.dist = dist(leaf_df)
+leaf.dist = dist(num_leaf_df)
 
-leaf_df.mds = cmdscale(leaf.dist, eig = TRUE)
-leaf_df.mds
+num_leaf_df.mds = cmdscale(leaf.dist, eig = TRUE)
+num_leaf_df.mds
 
 ```
-
-
 ##Hierarchical Clustering
 ```{r}
+
+agg = aggregate(full_df, list(full_df$Class), mean)
+
+agg.shape_feat = agg[c(1:7)]
+
+num_leaf_df.shape_feat = num_leaf_df[c(1:7)]
+num_leaf_df.text_feat = num_leaf_df[c(8:14)]
+
+fd = dist(agg.shape_feat)
+
 ## Single linkage hierarchical clustering
-hcs <- hclust(leaf.dist, "single")
+hcs <- hclust(fd, "single")
+plot(hcs, main = "Single Linkage HC Dendrogram")
+
+
 plot(hcs, main = "Single Linkage HC Dendrogram")
 plot(rev(hcs$height))
 ct <- cutree(hcs, 12)
 table(ct)
 
 ##complete linkage hierarchical clustering
-hcc <- hclust(leaf.dist, "complete")
+hcc <- hclust(fd, "complete")
 plot(hcc, main = "Complete Linkage HC Dendrogram")
 plot(rev(hcc$height))
 ct1 <- cutree(hcc, 7)
 table(ct1)
 
 ##Average linkage hierarchical clustering
-hca <- hclust(leaf.dist, "average")
+hca <- hclust(fd, "average")
 plot(hca, main = "Average Linkage HC Dendrogram")
 plot(rev(hca$height))
 ct2 <- cutree(hca, 10)
@@ -389,6 +385,57 @@ table(ct2)
 
 
 ```
+
+
+
+##Hierarchical Clustering
+```{r}
+# ## Single linkage hierarchical clustering
+# hcs <- hclust(leaf.dist, "single")
+# plot(hcs, main = "Single Linkage HC Dendrogram")
+# plot(rev(hcs$height))
+# ct <- cutree(hcs, 12)
+# table(ct)
+# 
+# ##complete linkage hierarchical clustering
+# hcc <- hclust(leaf.dist, "complete")
+# plot(hcc, main = "Complete Linkage HC Dendrogram")
+# plot(rev(hcc$height))
+# ct1 <- cutree(hcc, 7)
+# table(ct1)
+# 
+# ##Average linkage hierarchical clustering
+# hca <- hclust(leaf.dist, "average")
+# plot(hca, main = "Average Linkage HC Dendrogram")
+# plot(rev(hca$height))
+# ct2 <- cutree(hca, 10)
+# table(ct2)
+
+
+```
+```{r}
+######K-means
+agg.shape_feat = agg[c(1:7)]
+agg.text_feat = agg[c(8:14)]
+
+num_leaf_df.shape_feat = num_leaf_df[c(1:7)]
+num_leaf_df.text_feat = num_leaf_df[c(8:14)]
+
+leaf.km <- kmeans(agg.text_feat, centers = 9, nstart = 10)
+leaf.km$tot.withinss
+table(leaf.km$cluster)
+
+plot.wgss(num_leaf_df, 20)
+
+leaf.km1 <- kmeans(num_leaf_df, centers = 5, nstart = 20)
+leaf.km1$tot.withinss
+table(leaf.km1$cluster)
+
+plot(num_leaf_df.pca_cor$scores[,1:2], col = leaf.km1$cluster)
+
+
+```
+
 
 
 ```{r}
@@ -436,6 +483,9 @@ mbc.i$modelName
 ##CFA
 ```{r}
 
+
+r.fa.2varimax =  factanal(num_agg, factors = 3)
+print(r.fa.2varimax$loadings, cut = 0.5)
 
 ```
 
