@@ -158,7 +158,7 @@ c = 0
 
 for (i in 1:length(test)) {
   df = as.data.frame(test[[i]])
-  cat("\n", df$Class[1], "\n")
+  # cat("\n", df$Class[1], "\n")
   df = df[-c(1, 2, 17)]
   
   for (name in colnames(df)) {
@@ -168,8 +168,8 @@ for (i in 1:length(test)) {
     
     for (val in col) {
       if ((val > m + sdv * 3) || (val < m - sdv * 3)) {
-        cat("\n", name, ":", val, "[", m, sdv * 3, "]")
-        cat("\n", val - m + sdv * 3, "\n\n")
+        # cat("\n", name, ":", val, "[", m, sdv * 3, "]")
+        # cat("\n", val - m + sdv * 3, "\n\n")
         c = c + 1
       }
     }
@@ -214,7 +214,7 @@ for (col in colnames(leaf_28)) {
 }
 ```
 
-
+##DATASETS
 ```{r}
 # agg_df = aggregate(full_df, list(full_df$Class), mean)
 # 
@@ -225,11 +225,16 @@ leaf_df = full_df[-c(156),]
 num_leaf_df = leaf_df[, -c(1,2,17)]
 
 
+num_leaf_df.shape_feat = num_leaf_df[c(1:7)]
+num_leaf_df.text_feat[c(8:14)] = num_leaf_df[c(8:14)]
+
 agg = aggregate(leaf_df, list(leaf_df$Class), mean)
 num_agg = agg[, -c(1,2, 3,18)]
 
 
-agg.shape_feat = agg[c(1:7)]
+agg.shape_feat = num_agg[c(1:7)]
+agg.text_feat = num_agg[c(8:14)]
+
 
 ```
 
@@ -245,7 +250,7 @@ agg.shape_feat = agg[c(1:7)]
 ```{r}
 cat("Count of NAs:", sum(is.na(num_leaf_df)), "\n")
 cat("Count of 0 values", sum(num_leaf_df[num_leaf_df==0]), "\n")
-cat("Cosunt of Negative values:", sum(num_leaf_df[num_leaf_df<0]), "\n")
+cat("Count of Negative values:", sum(num_leaf_df[num_leaf_df<0]), "\n")
 
 cat("\n\n")
 summary(num_leaf_df)
@@ -264,7 +269,7 @@ But when we used interquartile range, outliers were found.
 ```{r}
 
 num_leaf_df.cor = cor(num_leaf_df)
-num_leaf_df.cov = cov(num_leaf_df)
+num_leaf_df.cov = cov(agg.shape_feat)
 
 cat("Covariance Matrix\n\n")
 num_leaf_df.cov
@@ -357,7 +362,7 @@ agg.shape_feat = agg[c(1:7)]
 num_leaf_df.shape_feat = num_leaf_df[c(1:7)]
 num_leaf_df.text_feat = num_leaf_df[c(8:14)]
 
-fd = dist(agg.shape_feat)
+fd = dist(num_leaf_df.shape_feat)
 
 ## Single linkage hierarchical clustering
 hcs <- hclust(fd, "single")
