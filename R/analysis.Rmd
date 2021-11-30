@@ -521,10 +521,97 @@ mbc.i$modelName
 
 ##CFA
 ```{r}
+library(psych)
+
+X = scale(num_agg)
+
+parallel <- fa.parallel(X)
 
 
-r.fa.2varimax =  factanal(num_agg, factors = 3)
+fa.none <- fa(r=X, 
+ nfactors = 3, 
+ # covar = FALSE, SMC = TRUE,
+ fm="ml", # type of factor analysis we want to use (“pa” is principal axis factoring)
+ max.iter=100, # (50 is the default, but we have changed it to 100
+ rotate="varimax") # none rotation
+print(fa.none)
+
+
+
+
+factanal.none <- factanal(X, factors=3, scores = c("regression"), rotation = "none")
+print(factanal.none, cut=0.5)
+fa.diagram(fa.none)
+
+r.fa.2varimax =  factanal(X, factors = 3, nstart=100)
+
+
+fa.diagram(r.fa.2varimax)
+
+
 print(r.fa.2varimax$loadings, cut = 0.5)
+```
+
+
+
+```{r}
+
+library(lavaan)
+library(sem)
+X = scale(num_agg)
+
+
+model = '
+  PA1 =~ Average_Intensity + Average_Contrast + Smoothness + Entropy + Uniformity+Third_Moment
+  PA2 =~ Solidity + Maximal_Indentation_Depth + Stochastic_Convexity + Lobedness + Isoperimetric_Factor
+  PA3 =~ Eccentricity + Elongation + Aspect_Ratio
+  '
+fit <- lavaan::cfa(model, data = X)
+
+print(summary(fit))
+
+
+
+
+summary(fit, fit.measures = TRUE, standardized = TRUE)
+standardizedSolution(fit)
+parameterEstimates(fit)
+
+
+semPaths(fit, nCharNodes = 0, style = "lisrel", rotation = 1)
+semPaths(fit, rotation = 1, 'est')
+
+```
+
+
+```{r}
+
+library(lavaan)
+library(sem)
+X = scale(num_agg)
+
+
+model = '
+  PA1 =~ Aspect_Ratio + Average_Intensity + Average_Contrast + Smoothness + Entropy + Uniformity+Third_Moment
+  PA2 =~ Eccentricity + Elongation + Solidity + Stochastic_Convexity + Isoperimetric_Factor + Maximal_Indentation_Depth + Lobedness
+  PA3 =~ Eccentricity + Elongation + Aspect_Ratio + Isoperimetric_Factor + Uniformity
+  '
+
+fit <- lavaan::cfa(model, data = X)
+
+summary(fit, fit.measures = TRUE, standardized = TRUE)
+
+print(summary(fit))
+
+
+
+
+standardizedSolution(fit)
+parameterEstimates(fit)
+
+
+semPaths(fit, nCharNodes = 0, style = "lisrel", rotation = 1)
+semPaths(fit, rotation = 1, 'est')
 
 ```
 
