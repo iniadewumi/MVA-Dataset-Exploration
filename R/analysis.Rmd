@@ -291,8 +291,8 @@ num_leaf_df.cov
 cat("\n\nCorrelation Matrix\n\n")
 num_leaf_df.cor
 
-
-plot(num_leaf_df.cor)
+library(corrplot)
+corrplot(num_leaf_df.cor, method = "number", number.cex = 0.5,type = "lower", order = "hclust", col = brewer.pal(n = 7, name = "RdBu"))
 ```
 
 ##FINDINGS FROM CORRELATION AND COVARIANCE ANALYSIS
