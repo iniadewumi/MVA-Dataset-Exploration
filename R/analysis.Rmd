@@ -535,6 +535,7 @@ fa.none <- fa(r=X,
  max.iter=100, # (50 is the default, but we have changed it to 100
  rotate="varimax") # none rotation
 print(fa.none)
+summary(fa.none)
 
 
 
@@ -569,11 +570,11 @@ model = '
 fit <- lavaan::cfa(model, data = X)
 
 print(summary(fit))
+fitMeasures(fit)
 
 
 
-
-summary(fit, fit.measures = TRUE, standardized = TRUE)
+summary(fit, fit.measures = TRUE)
 standardizedSolution(fit)
 parameterEstimates(fit)
 
@@ -603,8 +604,8 @@ summary(fit, fit.measures = TRUE, standardized = TRUE)
 
 print(summary(fit))
 
-
-
+fitMeasures(fit)
+options(fit.indices=c("GFI"))
 
 standardizedSolution(fit)
 parameterEstimates(fit)
